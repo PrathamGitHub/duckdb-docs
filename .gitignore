@@ -18,3 +18,6 @@ data/curated/
 
 # Local Jupyter/IPython state used by Cursor
 .cursor-state/
+
+# MkDocs build output
+site/

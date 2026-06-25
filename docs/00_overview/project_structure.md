@@ -194,4 +194,4 @@ Examples intentionally use **online datasets** (open data portals, public CSV/Ge
 
 - [Workflow layers](workflow_layers.md) — what each layer does
 - [Naming conventions](naming_conventions.md) — table and file names
-- [Template index](../../template_index.md) — catalog of SQL and notebook templates
+- [Template index](../template_index.md) — catalog of SQL and notebook templates

@@ -1,6 +1,6 @@
 site_name: DuckDB Workflow Docs
 site_description: Notebook-first DuckDB workflows for EDA, ETL, validation, export, and spatial analytics.
-repo_url: https://github.com/your-org/duckeb-docs
+repo_url: https://github.com/PrathamGitHub/duckeb-docs
 docs_dir: docs
 
 theme:
@@ -16,6 +16,7 @@ nav:
       - Workflow layers: 00_overview/workflow_layers.md
       - Naming conventions: 00_overview/naming_conventions.md
       - Project structure: 00_overview/project_structure.md
+      - Template index: template_index.md
   - Setup:
       - Local database: 01_setup/local_database.md
       - In-memory database: 01_setup/in_memory_database.md

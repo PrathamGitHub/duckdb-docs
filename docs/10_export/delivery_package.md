@@ -370,4 +370,4 @@ pkg = Path(f"data/output/delivery_{date.today().isoformat()}_v2")
 - [Validation summary table](../09_validation/validation_summary_table.md)
 - [Workflow layers](../00_overview/workflow_layers.md)
 
-Template reference: EXP-006 in [`template_index.md`](../../template_index.md)
+Template reference: EXP-006 in [`template_index.md`](../template_index.md)

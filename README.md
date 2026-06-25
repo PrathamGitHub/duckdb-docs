@@ -272,3 +272,24 @@ COPY (
 5. Build first `curated` model for a specific use case
 6. Export to `output` formats required by consumers
 7. Repeat with spatial sources (Shapefile, GeoParquet, GeoJSON, FileGDB)
+
+## Documentation Site (MkDocs)
+
+Run docs locally:
+
+```bash
+uv sync --group dev
+uv run mkdocs serve
+```
+
+Build docs locally:
+
+```bash
+uv run mkdocs build --strict
+```
+
+Publish with GitHub Pages:
+
+1. Push to the `main` branch.
+2. The workflow at `.github/workflows/docs-pages.yml` builds and deploys the site.
+3. In repository settings, ensure Pages uses **GitHub Actions** as the source.

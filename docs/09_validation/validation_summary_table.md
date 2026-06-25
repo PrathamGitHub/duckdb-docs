@@ -187,7 +187,7 @@ con.sql(f"""
 | Parameter | Example | Notes |
 |-----------|---------|-------|
 | `run_id` | `run_20250625_143000` | Unique per pipeline execution |
-| `check_id` | `VAL-002` … `VAL-009` | Matches [template index](../../template_index.md) |
+| `check_id` | `VAL-002` … `VAL-009` | Matches [template index](../template_index.md) |
 | `violating_rows` | `0` | For violation queries; use `detail` for summary metrics |
 | Summary checks | [row count](row_count_reconciliation.md), [aggregate](aggregate_reconciliation.md) | Store metrics in `detail`; set `status` from business rules |
 | Fail-fast | `assert all PASS` | Notebook vs batch mode |
