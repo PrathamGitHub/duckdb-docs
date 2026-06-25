@@ -162,13 +162,13 @@ con.sql("SELECT COUNT(*) AS n FROM raw.raw_population_csv").df()
 
 ### Promote to a shared module later
 
-When the same cell appears in many notebooks, extract paths and extension loading to `templates/python/paths.py` and `templates/python/extensions.py` — keep the notebook cell thin:
+When the same cell appears in many notebooks, extract paths and extension loading to `python/path_helpers.py` and `python/duckdb_helpers.py` — keep the notebook cell thin:
 
 ```python
-# Future pattern (when templates exist)
-# from templates.python.paths import ROOT, DB_PATH, OUTPUT_DIR
-# from templates.python.extensions import connect_with_extensions
-# con = connect_with_extensions(DB_PATH, ["httpfs", "spatial"])
+# Shared helpers (see python/README.md)
+# import sys; sys.path.insert(0, "python")
+# from path_helpers import ensure_project_dirs
+# from duckdb_helpers import connect_database, load_common_extensions
 ```
 
 ## Notes or Limitations

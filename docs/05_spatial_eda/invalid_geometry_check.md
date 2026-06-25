@@ -4,7 +4,7 @@ Detect topologically invalid geometries before `ST_Intersects`, buffers, unions,
 
 ## Purpose
 
-Count and sample rows where `ST_IsValid(geom)` is false so you can repair with `ST_MakeValid` in `staging` or quarantine bad features before `curated` spatial models.
+Count and sample rows where `ST_IsValid(geom)` is false so you can repair with `ST_MakeValid` in `staging` or quarantine bad features before `curated` spatial models. For row-listing queries, **zero rows means pass.**
 
 ## When to Use
 

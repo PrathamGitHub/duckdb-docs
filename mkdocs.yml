@@ -1,0 +1,116 @@
+site_name: DuckDB Workflow Docs
+site_description: Notebook-first DuckDB workflows for EDA, ETL, validation, export, and spatial analytics.
+repo_url: https://github.com/your-org/duckeb-docs
+docs_dir: docs
+
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - navigation.expand
+
+nav:
+  - Overview:
+      - What is DuckDB: 00_overview/what_is_duckdb.md
+      - When to use DuckDB: 00_overview/when_to_use_duckdb.md
+      - Workflow layers: 00_overview/workflow_layers.md
+      - Naming conventions: 00_overview/naming_conventions.md
+      - Project structure: 00_overview/project_structure.md
+  - Setup:
+      - Local database: 01_setup/local_database.md
+      - In-memory database: 01_setup/in_memory_database.md
+      - Project paths: 01_setup/project_paths.md
+      - Extensions: 01_setup/extensions.md
+      - Notebook setup cell: 01_setup/notebook_setup_cell.md
+  - Ingestion:
+      - CSV: 02_ingestion/csv.md
+      - Parquet: 02_ingestion/parquet.md
+      - Excel: 02_ingestion/excel.md
+      - JSON: 02_ingestion/json.md
+      - Folders and globs: 02_ingestion/folders_and_globs.md
+      - Partitioned Parquet: 02_ingestion/partitioned_parquet.md
+      - Remote HTTP / S3: 02_ingestion/remote_files_http_s3.md
+      - External databases: 02_ingestion/external_databases.md
+  - Spatial ingestion:
+      - Spatial extension setup: 03_spatial_ingestion/spatial_extension_setup.md
+      - Shapefile: 03_spatial_ingestion/shapefile.md
+      - GeoJSON: 03_spatial_ingestion/geojson.md
+      - GeoParquet: 03_spatial_ingestion/geoparquet.md
+      - ESRI File Geodatabase: 03_spatial_ingestion/esri_file_geodatabase.md
+      - Layer inspection: 03_spatial_ingestion/layer_inspection.md
+  - EDA:
+      - Preview rows: 04_eda/preview_rows.md
+      - Schema inspection: 04_eda/schema_inspection.md
+      - Row counts: 04_eda/row_counts.md
+      - Null profile: 04_eda/null_profile.md
+      - Distinct profile: 04_eda/distinct_profile.md
+      - Duplicate check: 04_eda/duplicate_check.md
+      - Numeric summary: 04_eda/numeric_summary.md
+      - Categorical frequency: 04_eda/categorical_frequency.md
+      - Date range check: 04_eda/date_range_check.md
+      - Outlier scan: 04_eda/outlier_scan.md
+  - Spatial EDA:
+      - Geometry type count: 05_spatial_eda/geometry_type_count.md
+      - Spatial extent: 05_spatial_eda/spatial_extent.md
+      - Null geometry check: 05_spatial_eda/null_geometry_check.md
+      - Invalid geometry check: 05_spatial_eda/invalid_geometry_check.md
+      - CRS check: 05_spatial_eda/crs_check.md
+      - Area / length summary: 05_spatial_eda/area_length_summary.md
+      - Spatial join preview: 05_spatial_eda/spatial_join_preview.md
+  - Cleaning:
+      - Text cleaning: 06_cleaning/text_cleaning.md
+      - Safe casting: 06_cleaning/safe_casting.md
+      - Date parsing: 06_cleaning/date_parsing.md
+      - Missing values: 06_cleaning/missing_values.md
+      - Deduplication: 06_cleaning/deduplication.md
+      - Column standardization: 06_cleaning/column_standardization.md
+      - Spatial geometry cleaning: 06_cleaning/spatial_geometry_cleaning.md
+  - Transformation:
+      - CTE pipeline: 07_transformation/cte_pipeline.md
+      - Joins: 07_transformation/joins.md
+      - Aggregations: 07_transformation/aggregations.md
+      - Window functions: 07_transformation/window_functions.md
+      - Pivot / unpivot: 07_transformation/pivot_unpivot.md
+      - Build dimension table: 07_transformation/build_dimension_table.md
+      - Build fact table: 07_transformation/build_fact_table.md
+      - Incremental load pattern: 07_transformation/incremental_load_pattern.md
+  - Spatial transformation:
+      - Spatial join: 08_spatial_transformation/spatial_join.md
+      - Buffer analysis: 08_spatial_transformation/buffer_analysis.md
+      - Nearest feature: 08_spatial_transformation/nearest_feature.md
+      - Clip / intersection: 08_spatial_transformation/clip_intersection.md
+      - Build curated spatial layer: 08_spatial_transformation/build_curated_spatial_layer.md
+      - Export-ready spatial layer: 08_spatial_transformation/export_ready_spatial_layer.md
+  - Validation:
+      - Row count reconciliation: 09_validation/row_count_reconciliation.md
+      - Primary key uniqueness: 09_validation/primary_key_uniqueness.md
+      - Required field null check: 09_validation/required_field_null_check.md
+      - Referential integrity: 09_validation/referential_integrity.md
+      - Value range check: 09_validation/value_range_check.md
+      - Category domain check: 09_validation/category_domain_check.md
+      - Date range validation: 09_validation/date_range_validation.md
+      - Aggregate reconciliation: 09_validation/aggregate_reconciliation.md
+      - Spatial validity check: 09_validation/spatial_validity_check.md
+      - Validation summary table: 09_validation/validation_summary_table.md
+  - Export:
+      - CSV export: 10_export/csv_export.md
+      - Parquet export: 10_export/parquet_export.md
+      - Partitioned Parquet export: 10_export/partitioned_parquet_export.md
+      - GeoParquet export: 10_export/geoparquet_export.md
+      - GeoJSON export: 10_export/geojson_export.md
+      - Excel-ready CSV: 10_export/excel_ready_csv.md
+      - Delivery package: 10_export/delivery_package.md
+  - Performance:
+      - Parquet best practices: 11_performance/parquet_best_practices.md
+      - Predicate pushdown: 11_performance/predicate_pushdown.md
+      - Column selection: 11_performance/column_selection.md
+      - Memory management: 11_performance/memory_management.md
+      - Explain analyze: 11_performance/explain_analyze.md
+      - Large file patterns: 11_performance/large_file_patterns.md
+      - Spatial performance: 11_performance/spatial_performance.md
+
+markdown_extensions:
+  - admonition
+  - tables
+  - toc:
+      permalink: true

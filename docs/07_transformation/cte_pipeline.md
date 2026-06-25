@@ -128,7 +128,7 @@ SELECT * FROM (VALUES
 ) AS t(order_id, customer_id, order_date, amount, order_status);
 """)
 
-con.execute(open("templates/sql/transformation/cte_pipeline.sql").read())  # when template exists
+con.execute(open("sql/transformation/cte_pipeline.sql").read())
 # Or paste the CREATE OR REPLACE TABLE ... WITH ... SQL above
 con.sql("SELECT * FROM curated.fct_orders ORDER BY order_date").df()
 ```

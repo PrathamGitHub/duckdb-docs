@@ -26,8 +26,8 @@ You ingest the same online sources on a schedule and want auditable layers: `sou
 
 ```python
 # Notebook orchestration: run SQL file, then validate
-con.execute(open("templates/sql/cleaning/safe_casting.sql").read())
-con.execute(open("templates/sql/validation/row_count_reconciliation.sql").read())
+con.execute(open("sql/cleaning/safe_casting.sql").read())
+con.execute(open("sql/validation/row_count_reconciliation.sql").read())
 ```
 
 **Why DuckDB:** one `.duckdb` file per project; schemas separate layers; `COPY` exports to Parquet/CSV.

@@ -34,9 +34,12 @@ SELECT * FROM staging.stg_population;
 |--------|--------|---------|---------|
 | `raw_` | `raw` | `raw.raw_population_csv` | Ingested from a specific source |
 | `stg_` | `staging` | `staging.stg_population` | Cleaned staging table |
-| `cur_` | `curated` | `curated.cur_population_by_region` | Curated model |
-| `cur_dim_` | `curated` | `curated.cur_dim_store` | Dimension table |
-| `cur_fact_` | `curated` | `curated.cur_fact_sales` | Fact table |
+| `cur_` | `curated` | `curated.cur_population_by_region` | General curated model |
+| `fct_` | `curated` | `curated.fct_orders` | Fact table at event/transaction grain |
+| `dim_` | `curated` | `curated.dim_customers` | Dimension / lookup table |
+| `geo_` | `curated` | `curated.geo_parcels` | Spatial curated layer |
+| `cur_dim_` | `curated` | `curated.cur_dim_store` | Dimension table (`cur_` style) |
+| `cur_fact_` | `curated` | `curated.cur_fact_sales` | Fact table (`cur_` style) |
 
 ### Raw table names
 
@@ -49,7 +52,8 @@ raw_<topic>_<format_or_source>
 Examples:
 
 - `raw.raw_population_csv` — CSV from population dataset
-- `raw.raw_parcels_shp` — Shapefile ingest
+- `raw.raw_orders` — orders CSV when format is obvious from context
+- `raw.raw_parcels` or `raw.raw_parcels_shp` — Shapefile ingest
 - `raw.raw_zoning_gdb` — FileGDB layer
 - `raw.raw_stops_geojson` — GeoJSON from API
 - `raw.raw_boundaries_geoparquet` — GeoParquet file
@@ -72,9 +76,11 @@ Intermediate staging tables: add a short qualifier:
 
 Name by **grain** and **use case**:
 
-- `curated.cur_population_by_country` — one row per country per year
-- `curated.cur_parcels_by_zone` — parcels with zoning attributes
-- `curated.cur_stores_nearest_transit` — spatial analysis result
+- `curated.cur_population_by_country` — one row per country per year (`cur_` style)
+- `curated.fct_orders` — transactional fact at order grain
+- `curated.dim_customers` — one row per customer
+- `curated.geo_parcels` — spatial parcels ready for export
+- `curated.cur_parcels_by_zone` — parcels with zoning attributes (`cur_` style)
 
 ## Columns
 
@@ -126,18 +132,19 @@ Use **lowercase** and **underscores**; avoid spaces in paths.
 
 | Pattern | Example |
 |---------|---------|
-| Numbered workflows | `00_quickstart.ipynb`, `01_ingest_online_data.ipynb` |
-| Templates | `notebooks/templates/01_ingest_csv.ipynb` |
-| Task in name | `05_spatial_workflows.ipynb` |
+| Base workflow notebooks | `00_eda_base.ipynb`, `01_etl_base.ipynb`, `02_spatial_eda_base.ipynb` |
+| Single-task starters | `notebooks/templates/01_ingest_csv.ipynb` **(planned)** |
+| Spatial EDA / export | `02_spatial_eda_base.ipynb`, `04_export_base.ipynb` |
 
 ## SQL Templates
 
-Group by task under `templates/sql/`:
+Group by task under `sql/`:
 
 ```text
-templates/sql/ingestion/ingest_folder_glob.sql
-templates/sql/validation/primary_key_uniqueness.sql
-templates/sql/export/export_geoparquet.sql
+sql/ingestion/ingest_csv.sql
+sql/validation/primary_key_uniqueness.sql
+sql/export/export_geoparquet.sql
+sql/spatial/ingest_shapefile.sql
 ```
 
 File names: **verb + object**, snake_case, no layer prefix in filename (layer is inside the SQL).
@@ -150,7 +157,7 @@ Same rules apply; spatial tables often include format in `raw_` only:
 |-------|---------|---------|
 | raw | `raw.raw_sales_csv` | `raw.raw_tracts_geoparquet` |
 | staging | `staging.stg_sales` | `staging.stg_tracts` |
-| curated | `curated.cur_sales_by_region` | `curated.cur_tracts_by_county` |
+| curated | `curated.cur_sales_by_region` | `curated.geo_tracts_by_county` |
 | output | `sales_by_region.parquet` | `tracts_by_county.geoparquet` |
 
 ## Quick Reference

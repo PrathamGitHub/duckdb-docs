@@ -4,7 +4,7 @@ Find rows with missing or empty geometries before spatial joins, area calculatio
 
 ## Purpose
 
-Quantify `NULL` and empty (`ST_IsEmpty`) geometry rates so you can filter or repair features in `staging` without silently dropping records in `curated` models.
+Quantify `NULL` and empty (`ST_IsEmpty`) geometry rates so you can filter or repair features in `staging` without silently dropping records in `curated` models. For row-listing queries, **zero rows means pass.**
 
 ## When to Use
 

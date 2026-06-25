@@ -8,7 +8,7 @@ Standardize validation output shape (`check_name`, `table_name`, `status`, `viol
 
 ## When to Use
 
-- End of `notebooks/03_validation_checks.ipynb` — one DataFrame for stakeholders
+- End of `notebooks/03_validation_base.ipynb` — one DataFrame for stakeholders
 - Before [export delivery package](../08_spatial_transformation/export_ready_spatial_layer.md)
 - In repeatable pipelines — append one row per check per run
 - CI / automation — fail build if any `status = 'FAIL'`

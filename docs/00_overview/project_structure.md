@@ -7,45 +7,58 @@ This repository is organized for **notebook-first** workflows: explore in Jupyte
 ```text
 duckeb-docs/
   README.md                 # Repository entry point
+  template_index.md         # Template catalog (IDs and file locations)
+  mkdocs.yml                # MkDocs site configuration
   pyproject.toml            # Python deps (duckdb, ipykernel)
   docs/                     # MkDocs documentation (you are here)
-    00_overview/            # Concepts and conventions
-    01-setup.md             # (planned) Environment and connection
-    02-ingestion.md         # (planned) Source → raw patterns
-    ...
+    00_overview/
+    01_setup/
+    02_ingestion/
+    03_spatial_ingestion/
+    04_eda/
+    05_spatial_eda/
+    06_cleaning/
+    07_transformation/
+    08_spatial_transformation/
+    09_validation/
+    10_export/
+    11_performance/
   notebooks/                # Runnable workflow notebooks
-    00_quickstart.ipynb
-    01_ingest_online_data.ipynb
-    02_staging_transformations.ipynb
-    03_validation_checks.ipynb
-    04_exports.ipynb
-    05_spatial_workflows.ipynb
-    templates/              # Copy-paste notebook starters
-  templates/
-    sql/                    # Layered SQL snippets by task
-    python/                 # Connection, paths, export helpers
-  data/                     # File-based layers (gitignored large files)
+    00_eda_base.ipynb
+    01_etl_base.ipynb
+    02_spatial_eda_base.ipynb
+    03_validation_base.ipynb
+    04_export_base.ipynb
+    templates/              # (planned) single-task notebook starters
+  sql/                      # Reusable SQL snippets by task
+  python/                   # Connection, paths, EDA, validation helpers
+  examples/                 # Worked CSV and spatial pipelines
+  data/                     # File-based layers (gitignore large files)
     source/                 # Optional local mirrors of external files
     raw/
     staging/
     curated/
     output/                 # Published deliverables
-  duckdb-workflow-docs/     # Template catalog index
 ```
 
-Not every project needs every folder on day one. Start with `notebooks/`, one `work.duckdb`, and `data/output/`; add `templates/` as patterns stabilize.
+Not every project needs every folder on day one. Start with `notebooks/01_etl_base.ipynb`, one `work.duckdb`, and `data/output/`; add `sql/` patterns as workflows stabilize.
 
 ## Documentation (`docs/`)
 
 | Path | Purpose |
 |------|---------|
 | `docs/00_overview/` | Concepts: DuckDB fit, layers, naming, structure |
-| `docs/01-setup.md` | Extensions, connections, schemas |
-| `docs/02-ingestion.md` | CSV, Parquet, JSON, remote URLs |
-| `docs/03-staging.md` | Cleaning and typing |
-| `docs/04-validation.md` | Quality checks before export |
-| `docs/05-exports.md` | Parquet, CSV, GeoParquet, GeoJSON |
-| `docs/06-spatial.md` | Shapefile, GeoParquet, GeoJSON, FileGDB |
+| `docs/01_setup/` | Extensions, connections, paths, notebook setup |
+| `docs/02_ingestion/` | CSV, Parquet, JSON, Excel, remote URLs |
+| `docs/03_spatial_ingestion/` | Shapefile, GeoParquet, GeoJSON, FileGDB |
+| `docs/04_eda/` | Profiling, nulls, duplicates, summaries |
+| `docs/05_spatial_eda/` | Geometry type, extent, CRS, validity |
+| `docs/06_cleaning/` | Text, casting, dates, deduplication |
+| `docs/07_transformation/` | Joins, aggregates, windows, facts/dims |
+| `docs/08_spatial_transformation/` | Spatial join, buffer, clip, curated layers |
+| `docs/09_validation/` | Row counts, keys, domains, spatial validity |
+| `docs/10_export/` | CSV, Parquet, GeoParquet, GeoJSON, delivery |
+| `docs/11_performance/` | Pushdown, memory, `EXPLAIN ANALYZE` |
 
 Published via **MkDocs** — Markdown sources, consistent headings, cross-links between overview and task guides.
 
@@ -53,16 +66,15 @@ Published via **MkDocs** — Markdown sources, consistent headings, cross-links 
 
 Notebooks are the **primary working interface**.
 
-| Notebook | Workflow focus |
-|----------|----------------|
-| `00_quickstart.ipynb` | Mini end-to-end: ingest → validate → export |
-| `01_ingest_online_data.ipynb` | Real-world URLs into `raw` |
-| `02_staging_transformations.ipynb` | `raw` → `staging` |
-| `03_validation_checks.ipynb` | Pass/fail checks |
-| `04_exports.ipynb` | `curated` → `output` |
-| `05_spatial_workflows.ipynb` | Spatial ingest through export |
+| Notebook | Template ID | Workflow focus |
+|----------|-------------|----------------|
+| `00_eda_base.ipynb` | EDA-BASE | Profile `raw`, `staging`, or `curated` tables |
+| `01_etl_base.ipynb` | ETL-BASE | End-to-end `source` → `raw` → `staging` → `curated` → `output` |
+| `02_spatial_eda_base.ipynb` | SPATIAL-EDA-BASE | Spatial profiling and geometry QA |
+| `03_validation_base.ipynb` | VALIDATION-BASE | VAL-001–VAL-009 pass/fail suite |
+| `04_export_base.ipynb` | EXPORT-BASE | `curated` → `output` (Parquet, CSV) |
 
-`notebooks/templates/` holds blank scaffolds and single-task starters (connect, ingest CSV, ingest Shapefile, etc.). Copy a template into your project before customizing.
+`notebooks/templates/` will hold blank scaffolds and single-task starters (connect, ingest CSV, ingest Shapefile, etc.) as they are added.
 
 ### Typical notebook flow
 
@@ -72,34 +84,41 @@ Setup → Ingest (source → raw) → Stage → Validate → Curate → Export
 
 Keep SQL in `%%sql` or `con.execute("""...""")` cells so non-Python users can read and run the same logic.
 
-## SQL and Python Templates (`templates/`)
+## SQL and Python Templates (`sql/`, `python/`)
 
 Promote stable notebook SQL into reusable files:
 
 ```text
-templates/
-  sql/
-    setup/              # Extensions, create schemas
-    ingestion/          # Per-format ingest
-    cleaning/           # Staging transforms
-    transformation/     # Joins, aggregates, windows
-    spatial_transform/  # Buffers, spatial joins, clip
-    validation/         # Row counts, keys, spatial validity
-    export/             # COPY patterns
-  python/
-    connection.py       # DuckDB connection factory
-    paths.py            # data/raw, staging, curated, output paths
-    extensions.py       # Load httpfs, spatial, json
-    export_helpers.py   # Named exports to output/
+sql/
+  setup/              # Extensions
+  ingestion/          # Per-format ingest
+  cleaning/           # Staging transforms
+  transformation/     # Joins, aggregates, windows
+  spatial/            # Ingest, spatial EDA, spatial transforms
+  validation/         # Row counts, keys, referential integrity
+  export/             # COPY patterns
+python/
+  path_helpers.py     # data/source, raw, staging, curated, output paths
+  duckdb_helpers.py   # Connect, load extensions, run SQL files
+  eda_helpers.py      # Preview, null profile, summaries
+  spatial_helpers.py  # Geometry QA SQL generators
+  validation_helpers.py
 ```
 
 Run from a notebook:
 
 ```python
 from pathlib import Path
-sql = Path("templates/sql/setup/create_layer_schemas.sql").read_text()
+sql = Path("sql/setup/load_common_extensions.sql").read_text()
 con.execute(sql)
 ```
+
+## Worked Examples (`examples/`)
+
+| Example | Path | Workflow |
+|---------|------|----------|
+| CSV to Parquet | `examples/csv_to_parquet/` | `source` → `raw` → `staging` → `output` |
+| Shapefile to GeoParquet | `examples/shapefile_to_geoparquet/` | `source` → `raw` → `curated` → `output` |
 
 ## Data Directories (`data/`)
 
@@ -166,7 +185,7 @@ Examples intentionally use **online datasets** (open data portals, public CSV/Ge
 ## Minimal Starter Checklist
 
 1. Clone repo; `uv sync` or install `duckdb` + `ipykernel`
-2. Open `notebooks/00_quickstart.ipynb`
+2. Open `notebooks/01_etl_base.ipynb`
 3. Confirm `work.duckdb` and schemas `raw`, `staging`, `curated`
 4. Run ingest from a public URL into `raw`
 5. Write first `staging` table and export to `data/output/`
@@ -175,4 +194,4 @@ Examples intentionally use **online datasets** (open data portals, public CSV/Ge
 
 - [Workflow layers](workflow_layers.md) — what each layer does
 - [Naming conventions](naming_conventions.md) — table and file names
-- [Template index](../../duckdb-workflow-docs/template_index.md) — catalog of SQL and notebook templates
+- [Template index](../../template_index.md) — catalog of SQL and notebook templates

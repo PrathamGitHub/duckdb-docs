@@ -9,5 +9,12 @@ wheels/
 # Virtual environments
 .venv
 
+# DuckDB local database and generated outputs
+work.duckdb
+data/output/
+data/staging/
+data/curated/
+*.duckdb.wal
+
 # Local Jupyter/IPython state used by Cursor
 .cursor-state/

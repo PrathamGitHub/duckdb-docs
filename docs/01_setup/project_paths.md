@@ -16,7 +16,7 @@ Consistent paths make ingest SQL, `COPY` exports, and spatial file reads work th
 
 - Every notebook that reads or writes under `data/`
 - SQL that uses absolute or relative file paths (`read_csv_auto`, `ST_Read`, `COPY ... TO`)
-- Promoting notebook logic into `templates/python/paths.py`
+- Promoting notebook logic into `python/path_helpers.py`
 - Switching between local files and `data/source/` mirrors of online datasets
 
 ## Required Code

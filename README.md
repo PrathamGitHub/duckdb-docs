@@ -27,7 +27,7 @@ Use this repo to:
 Core convention:
 
 ```text
-source -> raw -> staging -> curated -> output
+source → raw → staging → curated → output
 ```
 
 Principles:
@@ -50,9 +50,9 @@ Use clear and predictable names:
 
 - Schemas by layer: `raw`, `staging`, `curated`
 - Table prefixes by layer:
-  - `raw_...` for ingested tables
+  - `raw_...` for ingested tables (include format suffix when helpful, e.g. `raw_orders_csv`)
   - `stg_...` for cleaned staging tables
-  - `cur_...` for curated models
+  - `cur_...`, `fct_...`, `dim_...`, or `geo_...` for curated models (see [naming conventions](docs/00_overview/naming_conventions.md))
 - Snake case for all table and column names
 - Date-partitioned outputs when useful, for example: `output/sales_2026_06.parquet`
 
@@ -60,39 +60,53 @@ Example names:
 - `raw.raw_population_csv`
 - `staging.stg_population`
 - `curated.cur_population_by_region`
+- `curated.fct_orders`, `curated.dim_customers`, `curated.geo_parcels`
 
 ## Repository Structure
 
 ```text
 duckeb-docs/
   README.md
+  template_index.md       # Template catalog
+  mkdocs.yml              # MkDocs site config
   docs/
-    01-setup.md
-    02-ingestion.md
-    03-staging.md
-    04-validation.md
-    05-exports.md
-    06-spatial.md
+    00_overview/          # Concepts and conventions
+    01_setup/             # Connections, paths, extensions
+    02_ingestion/         # Tabular source → raw
+    03_spatial_ingestion/ # Shapefile, GeoJSON, GeoParquet, FileGDB
+    04_eda/               # Profiling and exploration
+    05_spatial_eda/       # Geometry QA and spatial profiling
+    06_cleaning/          # Staging transforms
+    07_transformation/    # Joins, aggregates, facts/dims
+    08_spatial_transformation/
+    09_validation/
+    10_export/
+    11_performance/
   notebooks/
-    00_quickstart.ipynb
-    01_ingest_online_data.ipynb
-    02_staging_transformations.ipynb
-    03_validation_checks.ipynb
-    04_exports.ipynb
-    05_spatial_workflows.ipynb
+    00_eda_base.ipynb
+    01_etl_base.ipynb
+    02_spatial_eda_base.ipynb
+    03_validation_base.ipynb
+    04_export_base.ipynb
+  sql/                    # Reusable SQL templates
+  python/                 # Notebook helper modules
+  examples/               # Worked end-to-end scripts
   data/
+    source/               # Optional local mirrors
     raw/
     staging/
     curated/
     output/
 ```
 
+See [template_index.md](template_index.md) for the full catalog of template IDs and file locations.
+
 ## Notebook-First Approach
 
 - Start each workflow as a notebook with short, testable cells
 - Keep SQL in notebook cells for transparency and quick iteration
 - Use Python where it improves ergonomics (I/O, orchestration, plotting)
-- Promote stable notebook logic into reusable `.sql` and `.py` assets later
+- Promote stable notebook logic into reusable `sql/` and `python/` assets later
 
 ## Supported Data Sources
 
@@ -209,7 +223,7 @@ SELECT
 FROM staging.stg_population;
 ```
 
-Duplicate key check:
+Duplicate key check (zero rows means pass):
 
 ```sql
 SELECT country_name, year, COUNT(*) AS n

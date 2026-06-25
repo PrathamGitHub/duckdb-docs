@@ -317,11 +317,12 @@ pd.DataFrame(checksums).to_csv(pkg / "validation" / "checksums.csv", index=False
 ### Attach full validation suite output
 
 ```python
-# Copy validation SQL results into validation/
+# Attach validation summary from the notebook run (write CSV first if needed)
+summary_path = val_dir / "validation_summary.csv"
 con.execute(f"""
   COPY (
-    SELECT * FROM read_csv('templates/sql/validation/_suite_output.csv')
-  ) TO '{val_dir / "full_suite.csv"}'
+    SELECT * FROM read_csv('{summary_path.as_posix()}')
+  ) TO '{(val_dir / "full_suite.csv").as_posix()}'
   WITH (HEADER, DELIMITER ',');
 """)
 ```
