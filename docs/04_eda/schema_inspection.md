@@ -153,7 +153,7 @@ WHERE table_schema = 'raw'
 | Wrong inferred types | Add explicit `types` at ingest or `TRY_CAST` in `staging` |
 | Extra unexpected columns | Document in ingest notes; drop or rename in `staging` |
 | Nullable key columns | [null_profile](null_profile.md) on key fields |
-| Ready for profiling | [row_counts](row_counts.md), [null_profile](null_profile.md), [distinct_profile](distinct_profile.md) |
+| Ready for profiling | [row_counts](row_counts.md), [table_summary](table_summary.md), [null_profile](null_profile.md), [distinct_profile](distinct_profile.md) |
 
 ## Related Pages
 

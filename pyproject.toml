@@ -13,4 +13,5 @@ dev = [
     "ipykernel>=7.3.0",
     "mkdocs>=1.6.1",
     "mkdocs-material>=9.6.15",
+    "pandas>=2.0",
 ]

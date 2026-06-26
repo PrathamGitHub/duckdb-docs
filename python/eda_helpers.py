@@ -2,11 +2,32 @@
 
 from __future__ import annotations
 
+import math
 import re
+from typing import TYPE_CHECKING
 
 import duckdb
 
+if TYPE_CHECKING:
+    import pandas as pd
+
 _IDENT_PATTERN = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
+_NUMERIC_TYPES = {
+    "TINYINT",
+    "SMALLINT",
+    "INTEGER",
+    "BIGINT",
+    "HUGEINT",
+    "UTINYINT",
+    "USMALLINT",
+    "UINTEGER",
+    "UBIGINT",
+    "UHUGEINT",
+    "FLOAT",
+    "DOUBLE",
+    "DECIMAL",
+    "REAL",
+}
 
 
 def _quote_identifier(name: str) -> str:
@@ -154,3 +175,258 @@ def categorical_frequency(
         LIMIT {int(top_n)}
         """
     )
+
+
+def list_table_columns(
+    con: duckdb.DuckDBPyConnection,
+    table: str,
+) -> list[tuple[str, str]]:
+    """Return ``(column_name, column_type)`` pairs from ``DESCRIBE``."""
+    quoted = _quote_table(table)
+    rows = con.sql(f"DESCRIBE {quoted}").fetchall()
+    return [(row[0], row[1]) for row in rows]
+
+
+def _is_numeric_type(column_type: str) -> bool:
+    return column_type.split("(")[0].upper() in _NUMERIC_TYPES
+
+
+def _parse_schema_table(table: str) -> tuple[str, str]:
+    parts = table.split(".")
+    if len(parts) != 2:
+        raise ValueError(f"Expected schema.table, got: {table!r}")
+    return parts[0], parts[1]
+
+
+def generate_top_values_sql(table: str, column: str, *, top_n: int = 10) -> str:
+    """SQL for top-N values with row counts and percentages for one column."""
+    _validate_columns([column])
+    if top_n < 1:
+        raise ValueError("top_n must be at least 1.")
+
+    quoted_table = _quote_table(table)
+    col = _quote_identifier(column)
+    return f"""
+SELECT
+  CAST({col} AS VARCHAR) AS value,
+  COUNT(*) AS row_count,
+  100.0 * COUNT(*) / SUM(COUNT(*)) OVER () AS pct
+FROM {quoted_table}
+GROUP BY 1
+ORDER BY row_count DESC
+LIMIT {int(top_n)}
+""".strip()
+
+
+def generate_numeric_column_stats_sql(table: str, column: str) -> str:
+    """SQL returning min/max/quantiles/mean/stddev for one numeric column."""
+    _validate_columns([column])
+    quoted_table = _quote_table(table)
+    col = _quote_identifier(column)
+    return f"""
+SELECT
+  MIN({col}) AS min,
+  MAX({col}) AS max,
+  quantile_cont({col}, 0.25) AS q1,
+  quantile_cont({col}, 0.5) AS median,
+  quantile_cont({col}, 0.75) AS q3,
+  AVG({col}) AS mean,
+  STDDEV_SAMP({col}) AS std
+FROM {quoted_table}
+WHERE {col} IS NOT NULL
+""".strip()
+
+
+def generate_outlier_count_sql(
+    table: str,
+    column: str,
+    *,
+    lower: float,
+    upper: float,
+) -> str:
+    """SQL returning a count of rows outside ``[lower, upper]`` for one column."""
+    _validate_columns([column])
+    quoted_table = _quote_table(table)
+    col = _quote_identifier(column)
+    return f"""
+SELECT COUNT(*) AS outlier_count
+FROM {quoted_table}
+WHERE {col} IS NOT NULL
+  AND ({col} < {lower} OR {col} > {upper})
+""".strip()
+
+
+def _format_top_values(
+    con: duckdb.DuckDBPyConnection,
+    table: str,
+    column: str,
+    *,
+    top_n: int,
+) -> str:
+    sql = generate_top_values_sql(table, column, top_n=top_n)
+    rows = con.sql(sql).fetchall()
+    parts: list[str] = []
+    for value, _count, pct in rows:
+        parts.append(f"{value} ({math.floor(pct)}%)")
+    return ", ".join(parts)
+
+
+def _table_estimated_bytes(con: duckdb.DuckDBPyConnection, table: str) -> int | None:
+    schema_name, table_name = _parse_schema_table(table)
+    try:
+        row = con.sql(
+            """
+            SELECT estimated_size
+            FROM duckdb_tables()
+            WHERE schema_name = ? AND table_name = ?
+            LIMIT 1
+            """,
+            params=[schema_name, table_name],
+        ).fetchone()
+    except duckdb.Error:
+        return None
+    return int(row[0]) if row and row[0] is not None else None
+
+
+def _format_memory(kb: float) -> str:
+    if kb > 1024 * 1024:
+        return f"{round(kb / 1024 / 1024, 1)}+ GB"
+    if kb > 1024:
+        return f"{round(kb / 1024, 1)}+ MB"
+    return f"{round(kb, 1)}+ KB"
+
+
+def get_table_summary(
+    con: duckdb.DuckDBPyConnection,
+    table: str,
+    *,
+    print_summary: bool = True,
+    properties_as_columns: bool = True,
+    top_n: int = 10,
+    exclude: list[str] | None = None,
+) -> pd.DataFrame:
+    """Build a column-oriented EDA profile using DuckDB SQL (minimal pandas assembly)."""
+    import pandas as pd
+
+    exclude_set = set(exclude or [])
+    columns_meta = [
+        (name, dtype)
+        for name, dtype in list_table_columns(con, table)
+        if name not in exclude_set
+    ]
+    if not columns_meta:
+        raise ValueError(f"No columns to profile on {table!r}")
+
+    column_names = [name for name, _ in columns_meta]
+    n_rows = row_count(con, table)
+    n_cols = len(column_names)
+
+    print(f"RangeIndex: {n_rows} entries; Data columns (total {n_cols} columns)")
+    estimated_bytes = _table_estimated_bytes(con, table)
+    if estimated_bytes is not None:
+        print(f"memory usage: {_format_memory(estimated_bytes / 1024)}\n")
+    else:
+        print("memory usage: (unavailable — table not in catalog)\n")
+
+    null_df = con.sql(generate_null_profile_sql(table, column_names)).df()
+    null_map = dict(zip(null_df["column_name"], null_df["null_count"]))
+
+    distinct_df = con.sql(generate_distinct_profile_sql(table, column_names)).df()
+    distinct_map = dict(zip(distinct_df["column_name"], distinct_df["distinct_count"]))
+
+    top_label = f"Top {top_n} Unique Values"
+    top_map = {
+        column: _format_top_values(con, table, column, top_n=top_n)
+        for column in column_names
+    }
+
+    property_rows: dict[str, dict[str, object]] = {
+        "dtype": {name: dtype for name, dtype in columns_meta},
+        "Missing Counts": {name: int(null_map[name]) for name in column_names},
+        "nUniques": {name: int(distinct_map[name]) for name in column_names},
+        top_label: top_map,
+    }
+
+    numeric_stat_names = [
+        "min",
+        "max",
+        "LW (1.5)",
+        "Q1",
+        "Median",
+        "Q3",
+        "UW (1.5)",
+        "Outlier Count (1.5*IQR)",
+        "mean-3*std",
+        "mean",
+        "std",
+        "mean+3*std",
+        "Outlier Count (3*std)",
+    ]
+    for stat_name in numeric_stat_names:
+        property_rows[stat_name] = {name: math.nan for name in column_names}
+
+    for name, dtype in columns_meta:
+        if not _is_numeric_type(dtype):
+            continue
+
+        stats = con.sql(generate_numeric_column_stats_sql(table, name)).fetchone()
+        if not stats or stats[0] is None:
+            continue
+
+        min_val, max_val, q1, median, q3, mean, std = stats
+        min_val = float(min_val)
+        max_val = float(max_val)
+        q1 = float(q1)
+        median = float(median)
+        q3 = float(q3)
+        mean = float(mean)
+        std = float(std) if stats[6] is not None else 0.0
+
+        lw = max(min_val, q1 - 1.5 * (q3 - q1))
+        uw = min(max_val, q3 + 1.5 * (q3 - q1))
+        lo_std = max(min_val, mean - 3 * std)
+        hi_std = min(max_val, mean + 3 * std)
+
+        iqr_count = int(
+            con.sql(generate_outlier_count_sql(table, name, lower=lw, upper=uw)).fetchone()[0]
+        )
+        std_count = int(
+            con.sql(generate_outlier_count_sql(table, name, lower=lo_std, upper=hi_std)).fetchone()[0]
+        )
+
+        def _outlier_label(count: int) -> str:
+            if count == 0:
+                return "0"
+            return f"{count} ({round(count * 100.0 / n_rows, 1)}%)"
+
+        property_rows["min"][name] = round(min_val, 1)
+        property_rows["max"][name] = round(max_val, 1)
+        property_rows["LW (1.5)"][name] = round(lw, 1)
+        property_rows["Q1"][name] = round(q1, 1)
+        property_rows["Median"][name] = round(median, 1)
+        property_rows["Q3"][name] = round(q3, 1)
+        property_rows["UW (1.5)"][name] = round(uw, 1)
+        property_rows["Outlier Count (1.5*IQR)"][name] = _outlier_label(iqr_count)
+        property_rows["mean-3*std"][name] = round(lo_std, 1)
+        property_rows["mean"][name] = round(mean, 1)
+        property_rows["std"][name] = round(std, 1)
+        property_rows["mean+3*std"][name] = round(hi_std, 1)
+        property_rows["Outlier Count (3*std)"][name] = _outlier_label(std_count)
+
+    ordered_props = [
+        "dtype",
+        "Missing Counts",
+        "nUniques",
+        top_label,
+        *numeric_stat_names,
+    ]
+    summary = pd.DataFrame(property_rows).T.reindex(ordered_props)
+    col_order = summary.loc["dtype"].astype(str).sort_values(ascending=False).index
+    summary = summary[col_order].astype(str)
+
+    if properties_as_columns:
+        summary = summary.T
+    if print_summary:
+        print(summary)
+
+    return summary

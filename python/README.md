@@ -57,15 +57,18 @@ PYTHONPATH=python uv run jupyter notebook
 - **`preview_table()`** — first N rows
 - **`row_count()`** — scalar count
 - **`generate_null_profile_sql()`** / **`generate_distinct_profile_sql()`** — return SQL strings for unpivoted column profiles
+- **`generate_top_values_sql()`** / **`generate_numeric_column_stats_sql()`** / **`generate_outlier_count_sql()`** — per-column SQL used by table summary
+- **`get_table_summary()`** — run consolidated DuckDB SQL profile (see `docs/04_eda/table_summary.md`)
 - **`numeric_summary()`** — min, max, avg, stddev for numeric columns
 - **`categorical_frequency()`** — top values with counts and percentages
 
 Example:
 
 ```python
-from eda_helpers import preview_table, generate_null_profile_sql
+from eda_helpers import preview_table, generate_null_profile_sql, get_table_summary
 
 preview_table(con, "staging.stg_orders", limit=10)
+get_table_summary(con, "staging.stg_orders", properties_as_columns=False)
 sql = generate_null_profile_sql(
     "staging.stg_orders",
     ["order_id", "customer_id", "order_date", "amount"],

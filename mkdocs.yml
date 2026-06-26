@@ -89,6 +89,7 @@ nav:
   - EDA:
       - Preview rows: 04_eda/preview_rows.md
       - Schema inspection: 04_eda/schema_inspection.md
+      - Table summary: 04_eda/table_summary.md
       - Row counts: 04_eda/row_counts.md
       - Null profile: 04_eda/null_profile.md
       - Distinct profile: 04_eda/distinct_profile.md
