@@ -1,14 +1,59 @@
 site_name: DuckDB Workflow Docs
 site_description: Notebook-first DuckDB workflows for EDA, ETL, validation, export, and spatial analytics.
+site_author: Prathamesh Barane
 site_url: https://prathamgithub.github.io/duckdb-docs/
 repo_url: https://github.com/PrathamGitHub/duckeb-docs
+repo_name: PrathamGitHub/duckdb-docs
 docs_dir: docs
 
 theme:
   name: material
+  icon:
+    logo: fontawesome/solid/book-open
   features:
     - navigation.sections
     - navigation.expand
+    - navigation.footer
+    - content.code.copy
+  palette:
+    # Dark Mode
+    - scheme: slate
+      toggle:
+        icon: material/weather-sunny
+        name: Dark mode
+      primary: green
+      accent: deep purple
+
+    # Light Mode
+    - scheme: default
+      toggle:
+        icon: material/weather-night
+        name: Light mode
+      primary: blue
+      accent: deep orange
+
+markdown_extensions:
+  - admonition
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+
+extra:
+  generator: false
+  social:
+    - icon: material/web
+      link: https://static.beservices.in/prathamesh/
+    - icon: fontawesome/brands/linkedin
+      link: https://www.linkedin.com/in/prathameshbarane
+    - icon: material/github
+      link: https://github.com/PrathamGitHub/duckdb-docs
+
+copyright: Copyright &copy; 2026 Prathamesh Barane
 
 nav:
   - Home: index.md
@@ -111,9 +156,3 @@ nav:
       - Explain analyze: 11_performance/explain_analyze.md
       - Large file patterns: 11_performance/large_file_patterns.md
       - Spatial performance: 11_performance/spatial_performance.md
-
-markdown_extensions:
-  - admonition
-  - tables
-  - toc:
-      permalink: true
