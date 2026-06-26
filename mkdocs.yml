@@ -1,5 +1,6 @@
 site_name: DuckDB Workflow Docs
 site_description: Notebook-first DuckDB workflows for EDA, ETL, validation, export, and spatial analytics.
+site_url: https://prathamgithub.github.io/duckdb-docs/
 repo_url: https://github.com/PrathamGitHub/duckeb-docs
 docs_dir: docs
 
@@ -10,6 +11,7 @@ theme:
     - navigation.expand
 
 nav:
+  - Home: index.md
   - Overview:
       - What is DuckDB: 00_overview/what_is_duckdb.md
       - When to use DuckDB: 00_overview/when_to_use_duckdb.md
