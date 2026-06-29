@@ -243,5 +243,5 @@ Templates are designed for mixed audiences: analysts, data engineers, GIS users,
 
 ## Related Documentation
 
-- Repository overview and conventions: [`README.md`](README.md)
+- Repository overview and conventions: [`README.md`](../README.md)
 - DuckDB official docs: [https://duckdb.org/docs/current/](https://duckdb.org/docs/current/)
